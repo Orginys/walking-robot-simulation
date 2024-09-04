@@ -1,0 +1,62 @@
+import java.util.HashSet;
+import java.util.Set;
+
+class Solution {
+    public int robotSim(int[] commands, int[][] obstacles) {
+        // Множество для хранения координат препятствий в виде строк "x,y"
+        Set<String> obstacleSet = new HashSet<>();
+        for (int[] obstacle : obstacles) {
+            // Добавляем каждое препятствие в множество
+            obstacleSet.add(obstacle[0] + "," + obstacle[1]);
+        }
+
+        // Массивы для направления робота: [0] = север, [1] = восток, [2] = юг, [3] = запад
+        int[] dx = {0, 1, 0, -1}; // Смещения по оси X для каждого направления
+        int[] dy = {1, 0, -1, 0}; // Смещения по оси Y для каждого направления
+
+        int x = 0, y = 0; // Начальные координаты робота
+        int direction = 0; // Начальное направление робота (север)
+        int maxDistanceSquared = 0; // Максимальная квадратичная дистанция от начала
+
+        // Проходим по всем командам
+        for (int command : commands) {
+            if (command == -2) {
+                // Поворот влево (90 градусов)
+                direction = (direction + 3) % 4;
+            } else if (command == -1) {
+                // Поворот вправо (90 градусов)
+                direction = (direction + 1) % 4;
+            } else {
+                // Движение вперед на k шагов
+                for (int i = 0; i < command; i++) {
+                    // Рассчитываем новые координаты
+                    int newX = x + dx[direction];
+                    int newY = y + dy[direction];
+
+                    // Проверяем, есть ли препятствие на новых координатах
+                    if (!obstacleSet.contains(newX + "," + newY)) {
+                        // Обновляем координаты робота
+                        x = newX;
+                        y = newY;
+                        // Вычисляем новую квадратичную дистанцию и обновляем максимальную
+                        maxDistanceSquared = Math.max(maxDistanceSquared, x * x + y * y);
+                    } else {
+                        // Если препятствие есть, остаемся на текущих координатах
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Возвращаем максимальную квадратичную дистанцию от начала
+        return maxDistanceSquared;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        // Тестовые примеры
+        System.out.println(solution.robotSim(new int[]{4, -1, 3}, new int[][]{})); // Ожидаемый результат: 25
+        System.out.println(solution.robotSim(new int[]{4, -1, 4, -2, 4}, new int[][]{{2, 4}})); // Ожидаемый результат: 65
+        System.out.println(solution.robotSim(new int[]{6, -1, -1, 6}, new int[][]{})); // Ожидаемый результат: 36
+    }
+}
